@@ -86,8 +86,8 @@ We've been given the source :
 }
 ``` 
 
-This is a very obvious sql injection. What we need to do is to pass the if check there, which means that rows[0] needs to exist and rows[0].password needs to be equal to our password. 
-Let's do that then. If nothing is selected by the first part of the select in question we can just add another where something is selected so it will be the first row. Since we have an obvious sql injection in the username we can easily do that with a union select as: 
+This is a simple sql injection. What we need to do is to pass the if check there, which means that rows[0] needs to exist and rows[0].password needs to be equal to our password. 
+Let's do that then. If nothing is selected by the first part of the select in question we can just add another where something is selected so it will be the first row. Since we have a simple sql injection in the username we can easily do that with a union select as: 
 
 ```
 Email address : hakupiku' union select 5 as password;#
